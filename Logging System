@@ -2,6 +2,7 @@
 // This variable simulates the "logged-in" state across requests using hidden form fields
 $loggedIn = isset($_POST['loggedIn']) && $_POST['loggedIn'] == 1;
 $loggedInUser = isset($_POST['loggedInUser']) ? $_POST['loggedInUser'] : '';
+$hashedPassword = isset($_POST['hashedPassword']) ? $_POST['hashedPassword'] : '';
 
 // Handle login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username']) && isset($_POST['password'])) {
@@ -25,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username']) && isset(
 if (isset($_POST['logout'])) {
     $loggedIn = false;
     $loggedInUser = '';
+    $hashedPassword = '';
     $message = "You have been logged out.";
 }
 
@@ -36,10 +38,13 @@ if (isset($_POST['logout'])) {
     Password: <input type="password" name="password" required><br>
     <input type="hidden" name="loggedIn" value="<?php echo $loggedIn ? '1' : '0'; ?>">
     <input type="hidden" name="loggedInUser" value="<?php echo htmlspecialchars($loggedInUser); ?>">
-    
+    <input type="hidden" name="hashedPassword" value="<?php echo htmlspecialchars($hashedPassword); ?>">
+
     <?php if ($loggedIn): ?>
         <input type="submit" name="logout" value="Logout">
+        <input type="submit" value="Login" disabled>
     <?php else: ?>
+        <input type="submit" name="logout" value="Logout" disabled>
         <input type="submit" value="Login">
     <?php endif; ?>
 </form>
