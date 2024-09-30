@@ -1,0 +1,59 @@
+<?php
+// This variable simulates the "logged-in" state across requests using hidden form fields
+$loggedIn = isset($_POST['loggedIn']) && $_POST['loggedIn'] == 1;
+$loggedInUser = isset($_POST['loggedInUser']) ? $_POST['loggedInUser'] : '';
+
+// Handle login form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username']) && isset($_POST['password'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    // Check if another user is already logged in
+    if ($loggedIn) {
+        $error = "User {$loggedInUser} is still logged in. Wait for them to log out first.";
+    } else {
+        // Hash the password for security
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        // Set the login state
+        $loggedIn = true;
+        $loggedInUser = $username;
+    }
+}
+
+// Handle logout form submission
+if (isset($_POST['logout'])) {
+    $loggedIn = false;
+    $loggedInUser = '';
+    $message = "You have been logged out.";
+}
+
+// Display the login/logout form
+?>
+<h2>Login Form</h2>
+<form method="POST" action="">
+    Username: <input type="text" name="username" required><br>
+    Password: <input type="password" name="password" required><br>
+    <input type="hidden" name="loggedIn" value="<?php echo $loggedIn ? '1' : '0'; ?>">
+    <input type="hidden" name="loggedInUser" value="<?php echo htmlspecialchars($loggedInUser); ?>">
+    
+    <?php if ($loggedIn): ?>
+        <input type="submit" name="logout" value="Logout">
+    <?php else: ?>
+        <input type="submit" value="Login">
+    <?php endif; ?>
+</form>
+
+<?php
+// Output login results or errors
+if (isset($error)) {
+    echo "<h3 style='color:red;'>$error</h3>";
+}
+
+if ($loggedIn) {
+    echo "<h3>Login Successful</h3>";
+    echo "Username: " . htmlspecialchars($loggedInUser) . "<br>";
+    echo "Hashed Password: " . htmlspecialchars($hashedPassword) . "<br>";
+} elseif (isset($message)) {
+    echo "<h3>$message</h3>";
+}
